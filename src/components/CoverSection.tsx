@@ -86,20 +86,24 @@ export function CoverSection({ onOpen, assetsReady }: CoverSectionProps) {
           <span className="relative pb-[6px] text-[0.7rem] uppercase tracking-[0.32em] text-[#f3ead8] transition-colors after:absolute after:bottom-0 after:left-1/2 after:h-px after:w-0 after:-translate-x-1/2 after:bg-white after:transition-[width] after:duration-500 group-enabled:hover:after:w-full">
             {assetsReady ? "Buka Undangan" : "Menyiapkan…"}
           </span>
-          <span className="flex h-[30px] w-[30px] items-center justify-center rounded-full border border-white/50 transition-[background,border-color] group-hover:border-white group-hover:bg-white/10">
-            <svg
-              className="h-[13px] w-[13px] transition-transform group-hover:translate-y-[3px]"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden
-            >
-              <path d="M6 9l6 6 6-6" />
-            </svg>
-          </span>
+          {assetsReady ? (
+            <span className="flex h-[30px] w-[30px] items-center justify-center rounded-full border border-white/50 transition-[background,border-color] group-hover:border-white group-hover:bg-white/10">
+              <svg
+                className="h-[13px] w-[13px] transition-transform group-hover:translate-y-[3px]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </span>
+          ) : (
+            <div className="cover-loader" aria-hidden />
+          )}
         </button>
       </div>
     </section>

@@ -71,18 +71,78 @@ function GalleryPhoto({
   );
 }
 
-function GalleryLightbox({
-  item,
-  onClose,
+const LIGHTBOX_EXIT_MS = 280;
+
+function LightboxNavButton({
+  direction,
+  onClick,
 }: {
-  item: GalleryItem;
-  onClose: () => void;
+  direction: "prev" | "next";
+  onClick: () => void;
 }) {
+  const label = direction === "prev" ? "Previous image" : "Next image";
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      className="absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-ink/55 text-white backdrop-blur-md transition-colors hover:bg-ink/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 max-sm:h-9 max-sm:w-9"
+      style={direction === "prev" ? { left: "clamp(8px, 2vw, 16px)" } : { right: "clamp(8px, 2vw, 16px)" }}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        aria-hidden
+        className="h-5 w-5 fill-none stroke-current stroke-[2] stroke-linecap-round stroke-linejoin-round"
+      >
+        {direction === "prev" ? (
+          <path d="M15 6l-6 6 6 6" />
+        ) : (
+          <path d="M9 6l6 6-6 6" />
+        )}
+      </svg>
+    </button>
+  );
+}
+
+function GalleryLightbox({
+  items,
+  index,
+  onClose,
+  onNavigate,
+}: {
+  items: GalleryItem[];
+  index: number;
+  onClose: () => void;
+  onNavigate: (index: number) => void;
+}) {
+  const item = items[index];
   const { src, alt, width, height } = item;
+  const [isClosing, setIsClosing] = useState(false);
+  const hasMultiple = items.length > 1;
+
+  const requestClose = useCallback(() => {
+    setIsClosing(true);
+    window.setTimeout(onClose, LIGHTBOX_EXIT_MS);
+  }, [onClose]);
+
+  const goPrev = useCallback(() => {
+    onNavigate((index - 1 + items.length) % items.length);
+  }, [index, items.length, onNavigate]);
+
+  const goNext = useCallback(() => {
+    onNavigate((index + 1) % items.length);
+  }, [index, items.length, onNavigate]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") {
+        requestClose();
+        return;
+      }
+      if (!hasMultiple) return;
+      if (event.key === "ArrowLeft") goPrev();
+      if (event.key === "ArrowRight") goNext();
     };
 
     const previousOverflow = document.body.style.overflow;
@@ -93,26 +153,41 @@ function GalleryLightbox({
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [onClose]);
+  }, [requestClose, goPrev, goNext, hasMultiple]);
+
+  const backdropAnim = isClosing
+    ? "animate-lightbox-backdrop-out"
+    : "animate-lightbox-backdrop-in";
+  const panelAnim = isClosing
+    ? "animate-lightbox-panel-out"
+    : "animate-lightbox-panel-in";
 
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-[clamp(16px,4vw,32px)]"
       role="dialog"
       aria-modal="true"
-      aria-label={alt}
+      aria-label={`Gallery — ${alt}`}
     >
       <button
         type="button"
-        className="absolute inset-0 bg-[rgba(20,18,14,0.88)] backdrop-blur-sm"
-        onClick={onClose}
+        className={cn(
+          "lightbox-backdrop absolute inset-0 bg-[rgba(20,18,14,0.88)] backdrop-blur-sm motion-reduce:opacity-100",
+          backdropAnim,
+        )}
+        onClick={requestClose}
         aria-label="Close gallery view"
       />
 
-      <div className="relative z-[1] flex max-h-[90vh] w-full max-w-[min(900px,92vw)] flex-col items-end gap-3">
+      <div
+        className={cn(
+          "lightbox-panel relative z-[1] flex max-h-[90vh] w-full max-w-[min(900px,92vw)] flex-col items-end gap-3 motion-reduce:opacity-100",
+          panelAnim,
+        )}
+      >
         <button
           type="button"
-          onClick={onClose}
+          onClick={requestClose}
           aria-label="Close"
           className="flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-ink/55 text-lg leading-none text-white backdrop-blur-md transition-colors hover:bg-ink/70"
         >
@@ -120,29 +195,47 @@ function GalleryLightbox({
         </button>
 
         <div className="relative w-full overflow-hidden bg-ink/20 shadow-2xl">
-          <Image
-            src={src}
-            alt={alt}
-            width={width}
-            height={height}
-            className="mx-auto max-h-[calc(90vh-56px)] w-auto max-w-full object-contain"
-            priority
-          />
+          {hasMultiple && (
+            <>
+              <LightboxNavButton direction="prev" onClick={goPrev} />
+              <LightboxNavButton direction="next" onClick={goNext} />
+            </>
+          )}
+
+          <div key={src} className="animate-lightbox-image-in motion-reduce:animate-none">
+            <Image
+              src={src}
+              alt={alt}
+              width={width}
+              height={height}
+              className="mx-auto max-h-[calc(90vh-56px)] w-auto max-w-full object-contain"
+              priority
+            />
+          </div>
         </div>
+
+        {hasMultiple && (
+          <p
+            className="w-full text-center font-sans text-[0.7rem] tracking-[0.2em] text-white/70"
+            aria-live="polite"
+          >
+            {index + 1} / {items.length}
+          </p>
+        )}
       </div>
     </div>
   );
 }
 
 export function GallerySection() {
-  const [selectedPhoto, setSelectedPhoto] = useState<GalleryItem | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
-  const openPhoto = useCallback((item: GalleryItem) => {
-    setSelectedPhoto(item);
+  const openPhoto = useCallback((index: number) => {
+    setSelectedIndex(index);
   }, []);
 
   const closePhoto = useCallback(() => {
-    setSelectedPhoto(null);
+    setSelectedIndex(null);
   }, []);
 
   const galleryItems: GalleryItem[] = images.galleryItems.map((item, index) =>
@@ -161,20 +254,25 @@ export function GallerySection() {
         </h2>
 
         <div className="grid w-full grid-cols-3 gap-[3px]">
-          {galleryItems.map((item) => (
+          {galleryItems.map((item, index) => (
             <GalleryPhoto
               key={item.src}
               item={item}
               objectFit={item.objectFit}
               tileBg={item.tileBg}
-              onClick={() => openPhoto(item)}
+              onClick={() => openPhoto(index)}
             />
           ))}
         </div>
       </Reveal>
 
-      {selectedPhoto && (
-        <GalleryLightbox item={selectedPhoto} onClose={closePhoto} />
+      {selectedIndex !== null && (
+        <GalleryLightbox
+          items={galleryItems}
+          index={selectedIndex}
+          onClose={closePhoto}
+          onNavigate={setSelectedIndex}
+        />
       )}
     </section>
   );

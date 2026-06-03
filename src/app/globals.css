@@ -16,6 +16,11 @@
   --animate-bob: bob 2.6s ease-in-out infinite;
   --animate-blink: blink 1s step-end infinite;
   --animate-music-pulse: music-pulse 2.4s ease-out infinite;
+  --animate-lightbox-backdrop-in: lightbox-backdrop-in 0.32s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  --animate-lightbox-backdrop-out: lightbox-backdrop-out 0.26s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  --animate-lightbox-panel-in: lightbox-panel-in 0.38s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  --animate-lightbox-panel-out: lightbox-panel-out 0.26s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  --animate-lightbox-image-in: lightbox-image-in 0.28s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
 }
 
 @keyframes slow-zoom {
@@ -61,6 +66,135 @@
   100% {
     opacity: 0;
     transform: scale(1.5);
+  }
+}
+
+@keyframes lightbox-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes lightbox-backdrop-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes lightbox-panel-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes lightbox-panel-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96) translateY(14px);
+  }
+}
+
+@keyframes lightbox-image-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.cover-loader {
+  width: 40px;
+  height: 20px;
+  --cover-loader-c: no-repeat radial-gradient(farthest-side, #f3ead8 93%, #0000);
+  background:
+    var(--cover-loader-c) 0 0,
+    var(--cover-loader-c) 50% 0,
+    var(--cover-loader-c) 100% 0;
+  background-size: 8px 8px;
+  position: relative;
+  animation: cover-loader-dots 1s linear infinite alternate;
+}
+
+.cover-loader::before {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 12px;
+  background: #f3ead8;
+  left: 0;
+  top: 0;
+  animation:
+    cover-loader-slide 1s linear infinite alternate,
+    cover-loader-hop 0.5s cubic-bezier(0, 200, 0.8, 200) infinite;
+}
+
+@keyframes cover-loader-dots {
+  0% {
+    background-position:
+      0 100%,
+      50% 0,
+      100% 0;
+  }
+  8%,
+  42% {
+    background-position:
+      0 0,
+      50% 0,
+      100% 0;
+  }
+  50% {
+    background-position:
+      0 0,
+      50% 100%,
+      100% 0;
+  }
+  58%,
+  92% {
+    background-position:
+      0 0,
+      50% 0,
+      100% 0;
+  }
+  100% {
+    background-position:
+      0 0,
+      50% 0,
+      100% 100%;
+  }
+}
+
+@keyframes cover-loader-slide {
+  100% {
+    left: calc(100% - 8px);
+  }
+}
+
+@keyframes cover-loader-hop {
+  100% {
+    top: -0.1px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover-loader,
+  .cover-loader::before {
+    animation: none;
   }
 }
 
@@ -113,4 +247,19 @@ body {
 
 [class*="animate-rise"] {
   opacity: 0;
+}
+
+.lightbox-backdrop {
+  opacity: 0;
+}
+
+.lightbox-panel {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lightbox-backdrop,
+  .lightbox-panel {
+    opacity: 1;
+  }
 }

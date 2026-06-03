@@ -9,23 +9,14 @@ export function EventSection() {
   return (
     <section
       id="event"
-      className="relative mx-[clamp(22px,7vw,48px)] my-[clamp(40px,8vw,60px)] flex flex-col items-center rounded-none border border-ink/35 bg-ivory px-[clamp(20px,5vw,36px)] py-[clamp(60px,13vw,100px)] shadow-[0_4px_28px_rgba(46,42,35,0.07)]"
+      className="relative z-[2] mx-[clamp(22px,7vw,48px)] my-[clamp(40px,8vw,60px)] flex h-[1016px] flex-col items-center overflow-visible rounded-none border border-ink/35 bg-ivory px-[clamp(20px,5vw,36px)] py-[clamp(60px,13vw,100px)] shadow-[0_4px_28px_rgba(46,42,35,0.07)]"
     >
-      <Image
-        src={images.venueDeco}
-        alt=""
-        width={340}
-        height={280}
-        aria-hidden
-        className="pointer-events-none absolute bottom-[clamp(-61px,-8vw,-26px)] left-[clamp(-52px,-8vw,-26px)] z-[1] h-auto w-[clamp(210px,54vw,340px)] select-none opacity-90 mix-blend-screen"
-      />
-
-      <div className="relative z-[2] flex w-full max-w-full flex-col items-center">
+      <div className="relative z-[1] flex w-full max-w-full flex-col items-center">
         <Reveal className="mb-[clamp(46px,10vw,70px)] text-center">
           <div className="mb-0.5 text-[clamp(0.68rem,2.8vw,0.76rem)] uppercase tracking-[0.32em] text-ink/55">
             Thursday
           </div>
-          <div className="font-display text-[clamp(2.6rem,15vw,4rem)] font-medium leading-none text-ink">
+          <div className="font-['Apple_Color_Emoji'] text-[clamp(2.6rem,15vw,4rem)] font-medium leading-none text-ink">
             11
           </div>
           <div className="mt-[6px] font-display text-[clamp(0.98rem,4.6vw,1.28rem)] italic tracking-[0.04em] text-ink/80">
@@ -107,6 +98,15 @@ export function EventSection() {
           </a>
         </Reveal>
       </div>
+
+      <Image
+        src={images.venueDeco}
+        alt=""
+        width={340}
+        height={280}
+        aria-hidden
+        className="pointer-events-none absolute bottom-[clamp(-61px,-8vw,-26px)] left-[clamp(-52px,-8vw,-26px)] z-10 h-auto w-[clamp(210px,54vw,340px)] select-none opacity-90"
+      />
     </section>
   );
 }
