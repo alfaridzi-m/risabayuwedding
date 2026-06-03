@@ -3,9 +3,13 @@
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { Reveal } from "@/components/Reveal";
-import { images } from "@/lib/images";
-
-type GalleryPhotoData = { src: string; alt: string };
+import {
+  images,
+  toGalleryGraphic,
+  toGalleryPhoto,
+  type GalleryItem,
+} from "@/lib/images";
+import { cn } from "@/lib/utils";
 
 function GalleryLogo() {
   return (
@@ -35,26 +39,52 @@ function GalleryLogo() {
   );
 }
 
-function GalleryPhoto({ src, alt, onClick }: GalleryPhotoData & { onClick: () => void }) {
+function GalleryPhoto({
+  item,
+  onClick,
+  objectFit = "cover",
+  tileBg,
+}: {
+  item: GalleryItem;
+  onClick: () => void;
+  objectFit?: "cover" | "contain";
+  tileBg?: string;
+}) {
+  const { src, alt } = item;
+
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label={`View ${alt}`}
-      className="relative aspect-square overflow-hidden bg-ink/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50"
+      className={cn(
+        "relative aspect-[4/5] w-full overflow-hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50",
+        tileBg ?? (objectFit === "contain" ? "bg-ivory" : "bg-ink/20"),
+      )}
     >
       <Image
         src={src}
         alt={alt}
         fill
         sizes="(max-width: 768px) 33vw, 200px"
-        className="object-cover transition-transform duration-300 hover:scale-[1.03]"
+        className={cn(
+          "transition-transform duration-300 hover:scale-[1.03]",
+          objectFit === "contain" ? "object-contain" : "object-cover",
+        )}
       />
     </button>
   );
 }
 
-function GalleryLightbox({ src, alt, onClose }: GalleryPhotoData & { onClose: () => void }) {
+function GalleryLightbox({
+  item,
+  onClose,
+}: {
+  item: GalleryItem;
+  onClose: () => void;
+}) {
+  const { src, alt, width, height } = item;
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -98,8 +128,8 @@ function GalleryLightbox({ src, alt, onClose }: GalleryPhotoData & { onClose: ()
           <Image
             src={src}
             alt={alt}
-            width={900}
-            height={900}
+            width={width}
+            height={height}
             className="mx-auto max-h-[calc(90vh-56px)] w-auto max-w-full object-contain"
             priority
           />
@@ -109,92 +139,30 @@ function GalleryLightbox({ src, alt, onClose }: GalleryPhotoData & { onClose: ()
   );
 }
 
-function BlessingTile() {
-  return (
-    <div className="flex aspect-square flex-col items-center justify-center bg-ivory px-[clamp(8px,2.5vw,14px)] py-[clamp(10px,2.5vw,16px)] text-center">
-      <svg viewBox="0 0 120 32" aria-hidden className="mb-[clamp(6px,1.5vw,10px)] h-[clamp(14px,3.5vw,20px)] w-auto text-ink/75">
-        <path
-          d="M8 26 C18 8 28 8 38 26 M42 26 C52 8 62 8 72 26 M76 26 C86 8 96 8 106 26"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.4"
-          strokeLinecap="round"
-        />
-      </svg>
-      <p className="font-serif text-[clamp(0.42rem,1.55vw,0.58rem)] leading-[1.65] tracking-[0.01em] text-ink/85">
-        May your next chapter be marriage. May it be easy, beautiful, and filled with blessings. May it be a
-        union that brings you closer to Allah, a love that takes care of your heart and strengthen your faith.
-      </p>
-    </div>
-  );
-}
-
-function ForeverTile() {
-  return (
-    <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-[#ece9e4]">
-      <svg viewBox="0 0 200 200" aria-hidden className="absolute inset-0 h-full w-full text-ink/55">
-        <path
-          d="M58 118 C58 92 72 78 92 78 C104 78 112 84 118 94 C124 84 132 78 144 78 C164 78 178 92 178 118 C178 148 118 168 118 168 C118 168 58 148 58 118 Z"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.2"
-        />
-        <path
-          d="M42 118 C42 92 56 78 76 78 C88 78 96 84 102 94"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.2"
-          transform="translate(-18 8) scale(0.72)"
-        />
-        <path
-          d="M20 70 Q100 20 180 70"
-          fill="none"
-          stroke="#c0392b"
-          strokeWidth="1.2"
-          opacity="0.85"
-        />
-        <ellipse cx="62" cy="132" rx="16" ry="10" fill="none" stroke="currentColor" strokeWidth="1.8" />
-        <ellipse cx="138" cy="132" rx="16" ry="10" fill="none" stroke="currentColor" strokeWidth="1.8" />
-      </svg>
-      <span className="relative z-[1] font-script text-[clamp(1.4rem,5.5vw,2rem)] leading-none text-ink/80">
-        Forever
-      </span>
-    </div>
-  );
-}
-
-function QuoteTile() {
-  return (
-    <div className="flex aspect-square items-center justify-center bg-ivory px-[clamp(10px,2.8vw,16px)] py-[clamp(8px,2vw,12px)] text-center">
-      <p className="font-script text-[clamp(0.95rem,3.8vw,1.35rem)] leading-[1.35] text-ink/85">
-        And I&apos;d choose you in a hundred lifetimes, in a hundred worlds, in any version of reality —
-        I&apos;d find you and I&apos;d choose you every time
-        <span className="mt-1 block text-[0.72em] not-italic opacity-70">xo</span>
-      </p>
-    </div>
-  );
-}
-
 export function GallerySection() {
-  const [p1, p2, p3, p4, p5, p6] = images.galleryPhotos;
-  const [selectedPhoto, setSelectedPhoto] = useState<GalleryPhotoData | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<GalleryItem | null>(null);
 
-  const openPhoto = useCallback((photo: GalleryPhotoData) => {
-    setSelectedPhoto(photo);
+  const openPhoto = useCallback((item: GalleryItem) => {
+    setSelectedPhoto(item);
   }, []);
 
   const closePhoto = useCallback(() => {
     setSelectedPhoto(null);
   }, []);
 
-  const photos: GalleryPhotoData[] = [
-    { src: p1, alt: "Risa & Bayu — moment 1" },
-    { src: p2, alt: "Risa & Bayu — moment 2" },
-    { src: p3, alt: "Risa & Bayu — moment 3" },
-    { src: p4, alt: "Risa & Bayu — moment 4" },
-    { src: p5, alt: "Risa & Bayu — moment 5" },
-    { src: p6, alt: "Risa & Bayu — moment 6" },
-  ];
+  const blessingTile = toGalleryGraphic(
+    images.galleryBlessing,
+    "Blessing — doa untuk pernikahan",
+  );
+  const foreverTile = toGalleryGraphic(
+    images.galleryForever,
+    "Forever — ilustrasi",
+  );
+  const quoteTile = toGalleryGraphic(images.galleryQuote, "Quote — kutipan");
+
+  const photos: GalleryItem[] = images.galleryPhotos.map((src, index) =>
+    toGalleryPhoto(src, `Risa & Bayu — moment ${index + 1}`),
+  );
 
   return (
     <section
@@ -208,22 +176,35 @@ export function GallerySection() {
         </h2>
 
         <div className="grid w-full grid-cols-3 gap-[3px]">
-          <GalleryPhoto {...photos[0]} onClick={() => openPhoto(photos[0])} />
-          <GalleryPhoto {...photos[1]} onClick={() => openPhoto(photos[1])} />
-          <BlessingTile />
+          <GalleryPhoto item={photos[0]} onClick={() => openPhoto(photos[0])} />
+          <GalleryPhoto item={photos[1]} onClick={() => openPhoto(photos[1])} />
+          <GalleryPhoto
+            item={blessingTile}
+            objectFit="contain"
+            onClick={() => openPhoto(blessingTile)}
+          />
 
-          <GalleryPhoto {...photos[2]} onClick={() => openPhoto(photos[2])} />
-          <ForeverTile />
-          <GalleryPhoto {...photos[3]} onClick={() => openPhoto(photos[3])} />
+          <GalleryPhoto item={photos[2]} onClick={() => openPhoto(photos[2])} />
+          <GalleryPhoto
+            item={foreverTile}
+            objectFit="contain"
+            tileBg="bg-[#ece9e4]"
+            onClick={() => openPhoto(foreverTile)}
+          />
+          <GalleryPhoto item={photos[3]} onClick={() => openPhoto(photos[3])} />
 
-          <QuoteTile />
-          <GalleryPhoto {...photos[4]} onClick={() => openPhoto(photos[4])} />
-          <GalleryPhoto {...photos[5]} onClick={() => openPhoto(photos[5])} />
+          <GalleryPhoto
+            item={quoteTile}
+            objectFit="contain"
+            onClick={() => openPhoto(quoteTile)}
+          />
+          <GalleryPhoto item={photos[4]} onClick={() => openPhoto(photos[4])} />
+          <GalleryPhoto item={photos[5]} onClick={() => openPhoto(photos[5])} />
         </div>
       </Reveal>
 
       {selectedPhoto && (
-        <GalleryLightbox src={selectedPhoto.src} alt={selectedPhoto.alt} onClose={closePhoto} />
+        <GalleryLightbox item={selectedPhoto} onClose={closePhoto} />
       )}
     </section>
   );

@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { ScrollRestore } from "@/components/ScrollRestore";
 import {
   Cormorant_Garamond,
   EB_Garamond,
@@ -48,12 +49,7 @@ export default function RootLayout({
       <body
         className={`${cormorant.variable} ${ebGaramond.variable} ${tangerine.variable} min-h-svh antialiased`}
       >
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "if('scrollRestoration' in history)history.scrollRestoration='manual';window.scrollTo(0,0);",
-          }}
-        />
+        <ScrollRestore />
         {children}
       </body>
     </html>
