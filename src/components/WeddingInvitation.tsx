@@ -39,19 +39,16 @@ export function WeddingInvitation() {
 
   const tryPlayRef = useRef(tryPlay);
   tryPlayRef.current = tryPlay;
-  const startSoundRef = useRef<() => void>(() => {});
 
   const startSound = useCallback(() => {
-    if (unmutedRef.current) return;
     const audio = audioRef.current;
     if (!audio) return;
+    const firstUnmute = !unmutedRef.current;
     unmutedRef.current = true;
     audio.muted = false;
-    audio.currentTime = 0;
+    if (firstUnmute) audio.currentTime = 0;
     tryPlay();
   }, [tryPlay]);
-
-  startSoundRef.current = startSound;
 
   const handleOpen = useCallback(() => {
     if (!assetsReady) return;
@@ -139,28 +136,19 @@ export function WeddingInvitation() {
     audio.volume = 1;
     tryPlayRef.current();
 
-    const retryIfPaused = () => {
-      if (audio.paused) tryPlayRef.current();
+    const retryMutedAutoplay = () => {
+      if (audio.muted && audio.paused) tryPlayRef.current();
     };
-    audio.addEventListener("canplay", retryIfPaused);
-    audio.addEventListener("loadeddata", retryIfPaused);
-
-    const unlock = () => startSoundRef.current();
-    const once = { once: true, passive: true } as AddEventListenerOptions;
-    for (const event of ["pointerdown", "click"] as const) {
-      window.addEventListener(event, unlock, once);
-    }
+    audio.addEventListener("canplay", retryMutedAutoplay);
+    audio.addEventListener("loadeddata", retryMutedAutoplay);
 
     audio.addEventListener("play", reflectPlaying);
     audio.addEventListener("pause", reflectPlaying);
     audio.addEventListener("volumechange", reflectPlaying);
 
     return () => {
-      audio.removeEventListener("canplay", retryIfPaused);
-      audio.removeEventListener("loadeddata", retryIfPaused);
-      for (const event of ["pointerdown", "click"] as const) {
-        window.removeEventListener(event, unlock);
-      }
+      audio.removeEventListener("canplay", retryMutedAutoplay);
+      audio.removeEventListener("loadeddata", retryMutedAutoplay);
       audio.removeEventListener("play", reflectPlaying);
       audio.removeEventListener("pause", reflectPlaying);
       audio.removeEventListener("volumechange", reflectPlaying);
