@@ -3,12 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { Reveal } from "@/components/Reveal";
-import {
-  images,
-  toGalleryGraphic,
-  toGalleryPhoto,
-  type GalleryItem,
-} from "@/lib/images";
+import { images, toGalleryItem, type GalleryItem } from "@/lib/images";
 import { cn } from "@/lib/utils";
 
 function GalleryLogo() {
@@ -150,18 +145,8 @@ export function GallerySection() {
     setSelectedPhoto(null);
   }, []);
 
-  const blessingTile = toGalleryGraphic(
-    images.galleryBlessing,
-    "Blessing — doa untuk pernikahan",
-  );
-  const foreverTile = toGalleryGraphic(
-    images.galleryForever,
-    "Forever — ilustrasi",
-  );
-  const quoteTile = toGalleryGraphic(images.galleryQuote, "Quote — kutipan");
-
-  const photos: GalleryItem[] = images.galleryPhotos.map((src, index) =>
-    toGalleryPhoto(src, `Risa & Bayu — moment ${index + 1}`),
+  const galleryItems: GalleryItem[] = images.galleryItems.map((item, index) =>
+    toGalleryItem(item, `Risa & Bayu — moment ${index + 1}`),
   );
 
   return (
@@ -176,30 +161,15 @@ export function GallerySection() {
         </h2>
 
         <div className="grid w-full grid-cols-3 gap-[3px]">
-          <GalleryPhoto item={photos[0]} onClick={() => openPhoto(photos[0])} />
-          <GalleryPhoto item={photos[1]} onClick={() => openPhoto(photos[1])} />
-          <GalleryPhoto
-            item={blessingTile}
-            objectFit="contain"
-            onClick={() => openPhoto(blessingTile)}
-          />
-
-          <GalleryPhoto item={photos[2]} onClick={() => openPhoto(photos[2])} />
-          <GalleryPhoto
-            item={foreverTile}
-            objectFit="contain"
-            tileBg="bg-[#ece9e4]"
-            onClick={() => openPhoto(foreverTile)}
-          />
-          <GalleryPhoto item={photos[3]} onClick={() => openPhoto(photos[3])} />
-
-          <GalleryPhoto
-            item={quoteTile}
-            objectFit="contain"
-            onClick={() => openPhoto(quoteTile)}
-          />
-          <GalleryPhoto item={photos[4]} onClick={() => openPhoto(photos[4])} />
-          <GalleryPhoto item={photos[5]} onClick={() => openPhoto(photos[5])} />
+          {galleryItems.map((item) => (
+            <GalleryPhoto
+              key={item.src}
+              item={item}
+              objectFit={item.objectFit}
+              tileBg={item.tileBg}
+              onClick={() => openPhoto(item)}
+            />
+          ))}
         </div>
       </Reveal>
 

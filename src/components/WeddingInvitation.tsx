@@ -5,6 +5,7 @@ import { ClosingSection } from "@/components/ClosingSection";
 import { CountdownSection } from "@/components/CountdownSection";
 import { CoupleSection } from "@/components/CoupleSection";
 import { CoverSection } from "@/components/CoverSection";
+import { InvitationAssetPreloader } from "@/components/InvitationAssetPreloader";
 import { EventSection } from "@/components/EventSection";
 import { FinalSection } from "@/components/FinalSection";
 import { GallerySection } from "@/components/GallerySection";
@@ -13,12 +14,14 @@ import { UcapanSection } from "@/components/UcapanSection";
 import { MusicToggle } from "@/components/MusicToggle";
 import { ProfilesSection } from "@/components/ProfilesSection";
 import { Toast } from "@/components/Toast";
+import { invitationAudioSrc } from "@/lib/images";
 
 export function WeddingInvitation() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const unmutedRef = useRef(false);
   const [playing, setPlaying] = useState(false);
   const [invitationOpened, setInvitationOpened] = useState(false);
+  const [assetsReady, setAssetsReady] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "" });
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -51,10 +54,11 @@ export function WeddingInvitation() {
   startSoundRef.current = startSound;
 
   const handleOpen = useCallback(() => {
+    if (!assetsReady) return;
     setInvitationOpened(true);
     startSound();
     document.getElementById("next")?.scrollIntoView({ behavior: "smooth" });
-  }, [startSound]);
+  }, [assetsReady, startSound]);
 
   useEffect(() => {
     if ("scrollRestoration" in history) {
@@ -170,7 +174,7 @@ export function WeddingInvitation() {
       {/* Replace /audio/song.mp3 with your track in public/audio */}
       <audio
         ref={audioRef}
-        src="/audio/song.mp3"
+        src={invitationAudioSrc}
         loop
         preload="auto"
         playsInline
@@ -179,8 +183,10 @@ export function WeddingInvitation() {
       <MusicToggle playing={playing} onToggle={toggleMusic} />
       <Toast message={toast.message} show={toast.show} />
 
+      <InvitationAssetPreloader onReady={() => setAssetsReady(true)} />
+
       <div className="paper-texture relative overflow-x-hidden">
-        <CoverSection onOpen={handleOpen} />
+        <CoverSection onOpen={handleOpen} assetsReady={assetsReady} />
         <CoupleSection />
         <CountdownSection />
         <ProfilesSection />

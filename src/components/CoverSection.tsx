@@ -22,9 +22,10 @@ function CoverGuestGreeting() {
 
 type CoverSectionProps = {
   onOpen: () => void;
+  assetsReady: boolean;
 };
 
-export function CoverSection({ onOpen }: CoverSectionProps) {
+export function CoverSection({ onOpen, assetsReady }: CoverSectionProps) {
   return (
     <section
       id="cover"
@@ -77,11 +78,13 @@ export function CoverSection({ onOpen }: CoverSectionProps) {
         <button
           type="button"
           onClick={onOpen}
-          aria-label="Buka Undangan"
-          className="animate-rise-d5 group flex flex-col items-center gap-[10px] border-none bg-transparent font-serif text-white"
+          disabled={!assetsReady}
+          aria-label={assetsReady ? "Buka Undangan" : "Menyiapkan undangan"}
+          aria-busy={!assetsReady}
+          className="animate-rise-d5 group flex flex-col items-center gap-[10px] border-none bg-transparent font-serif text-white transition-opacity disabled:pointer-events-none disabled:opacity-45"
         >
-          <span className="relative pb-[6px] text-[0.7rem] uppercase tracking-[0.32em] text-[#f3ead8] transition-colors after:absolute after:bottom-0 after:left-1/2 after:h-px after:w-0 after:-translate-x-1/2 after:bg-white after:transition-[width] after:duration-500 group-hover:after:w-full">
-            Buka Undangan
+          <span className="relative pb-[6px] text-[0.7rem] uppercase tracking-[0.32em] text-[#f3ead8] transition-colors after:absolute after:bottom-0 after:left-1/2 after:h-px after:w-0 after:-translate-x-1/2 after:bg-white after:transition-[width] after:duration-500 group-enabled:hover:after:w-full">
+            {assetsReady ? "Buka Undangan" : "Menyiapkan…"}
           </span>
           <span className="flex h-[30px] w-[30px] items-center justify-center rounded-full border border-white/50 transition-[background,border-color] group-hover:border-white group-hover:bg-white/10">
             <svg
