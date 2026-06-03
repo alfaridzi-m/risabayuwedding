@@ -9,7 +9,7 @@ export function EventSection() {
   return (
     <section
       id="event"
-      className="relative z-[2] mx-[clamp(22px,7vw,48px)] my-[clamp(40px,8vw,60px)] flex h-[1016px] flex-col items-center overflow-visible rounded-none border border-ink/35 bg-ivory px-[clamp(20px,5vw,36px)] py-[clamp(60px,13vw,100px)] shadow-[0_4px_28px_rgba(46,42,35,0.07)]"
+      className="relative z-[2] mx-[clamp(22px,7vw,48px)] my-[clamp(40px,8vw,60px)] flex h-[914px] flex-col items-center overflow-visible rounded-none border border-ink/35 bg-ivory px-[clamp(20px,5vw,36px)] py-[clamp(60px,13vw,100px)] shadow-[0_4px_28px_rgba(46,42,35,0.07)]"
     >
       <div className="relative z-[1] flex w-full max-w-full flex-col items-center">
         <Reveal className="mb-[clamp(46px,10vw,70px)] text-center">
